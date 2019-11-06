@@ -1,0 +1,12 @@
+schema:
+  - schema.graphql
+exec:
+  filename: graph/generated.go
+  package: graph
+model:
+  filename: src/structs/models_gen.go
+  package: structs
+resolver:
+  filename: graph/resolver_generated.go
+  package: graph
+  type: Resolver

@@ -1,0 +1,16 @@
+type Site {
+  url: String!
+  access_date: String!
+  charges: [Charge!]
+}
+
+type Charge {
+  name: String!
+  brl_value: String!
+  usd_value: String!
+  eur_value: String!
+}
+
+type Query {
+  sites(site: String): [Charge!]!
+}
