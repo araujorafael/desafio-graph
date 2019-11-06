@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+	"desafio-graph/src/libs"
 	"desafio-graph/src/structs"
 
 	"github.com/vektah/gqlparser/gqlerror"
@@ -13,6 +14,23 @@ func GetSite(ctx context.Context, site *string) ([]*structs.Site, error) {
 		return []*structs.Site{}, gqlerror.Errorf("404 - NOT FOUND")
 	}
 
-	found := []*structs.Site{{URL: "https://www.smartmei.com.br"}}
+	pricing := libs.GetPricing(*site)
+
+	charges := make([]*structs.Charge, len(pricing))
+	for i := range pricing {
+		cg := &structs.Charge{
+			Name:     pricing[i].Title,
+			BrlValue: pricing[i].NormalValue,
+		}
+
+		charges[i] = cg
+	}
+
+	siteData := &structs.Site{
+		URL:     *site,
+		Charges: charges,
+	}
+
+	found := []*structs.Site{siteData}
 	return found, nil
 }

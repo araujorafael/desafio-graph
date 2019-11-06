@@ -19,7 +19,7 @@ type Charge struct {
 }
 
 // GetPricing returns product pricing
-func GetPricing(url string) {
+func GetPricing(url string) []Charge {
 	var charges []Charge
 
 	data := readBody(url)
@@ -36,7 +36,7 @@ func GetPricing(url string) {
 				tablerow.Find(".col-sm-4").Each(func(index int, data *goquery.Selection) {
 					switch index {
 					case 0:
-						chargeData.Title = data.Text()
+						chargeData.Title = strings.TrimSpace(data.Text())
 					case 1:
 						chargeData.NormalValue = getValues(data.Text())
 					case 2:
@@ -48,6 +48,8 @@ func GetPricing(url string) {
 			}
 		})
 	})
+
+	return charges
 }
 
 func getValues(html string) string {

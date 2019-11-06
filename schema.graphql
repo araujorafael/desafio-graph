@@ -12,5 +12,5 @@ type Charge {
 }
 
 type Query {
-  sites(site: String): [Charge!]!
+  sites(site: String): [Site!]!
 }

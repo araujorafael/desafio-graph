@@ -61,7 +61,7 @@ type ComplexityRoot struct {
 }
 
 type QueryResolver interface {
-	Sites(ctx context.Context, site *string) ([]*structs.Charge, error)
+	Sites(ctx context.Context, site *string) ([]*structs.Site, error)
 }
 
 type executableSchema struct {
@@ -203,7 +203,7 @@ type Charge {
 }
 
 type Query {
-  sites(site: String): [Charge!]!
+  sites(site: String): [Site!]!
 }`},
 )
 
@@ -461,10 +461,10 @@ func (ec *executionContext) _Query_sites(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*structs.Charge)
+	res := resTmp.([]*structs.Site)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNCharge2ᚕᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx, field.Selections, res)
+	return ec.marshalNSite2ᚕᚖdesafioᚑgraphᚋsrcᚋstructsᚐSite(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2192,7 +2192,21 @@ func (ec *executionContext) marshalNCharge2desafioᚑgraphᚋsrcᚋstructsᚐCha
 	return ec._Charge(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCharge2ᚕᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx context.Context, sel ast.SelectionSet, v []*structs.Charge) graphql.Marshaler {
+func (ec *executionContext) marshalNCharge2ᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx context.Context, sel ast.SelectionSet, v *structs.Charge) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Charge(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSite2desafioᚑgraphᚋsrcᚋstructsᚐSite(ctx context.Context, sel ast.SelectionSet, v structs.Site) graphql.Marshaler {
+	return ec._Site(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSite2ᚕᚖdesafioᚑgraphᚋsrcᚋstructsᚐSite(ctx context.Context, sel ast.SelectionSet, v []*structs.Site) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -2216,7 +2230,7 @@ func (ec *executionContext) marshalNCharge2ᚕᚖdesafioᚑgraphᚋsrcᚋstructs
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCharge2ᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx, sel, v[i])
+			ret[i] = ec.marshalNSite2ᚖdesafioᚑgraphᚋsrcᚋstructsᚐSite(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -2229,14 +2243,14 @@ func (ec *executionContext) marshalNCharge2ᚕᚖdesafioᚑgraphᚋsrcᚋstructs
 	return ret
 }
 
-func (ec *executionContext) marshalNCharge2ᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx context.Context, sel ast.SelectionSet, v *structs.Charge) graphql.Marshaler {
+func (ec *executionContext) marshalNSite2ᚖdesafioᚑgraphᚋsrcᚋstructsᚐSite(ctx context.Context, sel ast.SelectionSet, v *structs.Site) graphql.Marshaler {
 	if v == nil {
 		if !ec.HasError(graphql.GetResolverContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
 		}
 		return graphql.Null
 	}
-	return ec._Charge(ctx, sel, v)
+	return ec._Site(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

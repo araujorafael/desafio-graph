@@ -16,6 +16,6 @@ func (r *Resolver) Query() QueryResolver {
 
 type queryResolver struct{ *Resolver }
 
-func (r *queryResolver) Sites(ctx context.Context, site *string) ([]*structs.Charge, error) {
+func (r *queryResolver) Sites(ctx context.Context, site *string) ([]*structs.Site, error) {
 	return resolvers.GetSite(ctx, site)
 }
