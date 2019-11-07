@@ -1,7 +1,12 @@
 type Site {
   url: String!
   access_date: String!
-  charges: [Charge!]
+  plans: [Plans!]!
+}
+
+type Plans {
+  name: String!
+  charges: [Charge!]!
 }
 
 type Charge {

@@ -9,8 +9,13 @@ type Charge struct {
 	EurValue string `json:"eur_value"`
 }
 
+type Plans struct {
+	Name    string    `json:"name"`
+	Charges []*Charge `json:"charges"`
+}
+
 type Site struct {
-	URL        string    `json:"url"`
-	AccessDate string    `json:"access_date"`
-	Charges    []*Charge `json:"charges"`
+	URL        string   `json:"url"`
+	AccessDate string   `json:"access_date"`
+	Plans      []*Plans `json:"plans"`
 }

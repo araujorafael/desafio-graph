@@ -49,13 +49,18 @@ type ComplexityRoot struct {
 		UsdValue func(childComplexity int) int
 	}
 
+	Plans struct {
+		Charges func(childComplexity int) int
+		Name    func(childComplexity int) int
+	}
+
 	Query struct {
 		Sites func(childComplexity int, site *string) int
 	}
 
 	Site struct {
 		AccessDate func(childComplexity int) int
-		Charges    func(childComplexity int) int
+		Plans      func(childComplexity int) int
 		URL        func(childComplexity int) int
 	}
 }
@@ -107,6 +112,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Charge.UsdValue(childComplexity), true
 
+	case "Plans.charges":
+		if e.complexity.Plans.Charges == nil {
+			break
+		}
+
+		return e.complexity.Plans.Charges(childComplexity), true
+
+	case "Plans.name":
+		if e.complexity.Plans.Name == nil {
+			break
+		}
+
+		return e.complexity.Plans.Name(childComplexity), true
+
 	case "Query.sites":
 		if e.complexity.Query.Sites == nil {
 			break
@@ -126,12 +145,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Site.AccessDate(childComplexity), true
 
-	case "Site.charges":
-		if e.complexity.Site.Charges == nil {
+	case "Site.plans":
+		if e.complexity.Site.Plans == nil {
 			break
 		}
 
-		return e.complexity.Site.Charges(childComplexity), true
+		return e.complexity.Site.Plans(childComplexity), true
 
 	case "Site.url":
 		if e.complexity.Site.URL == nil {
@@ -192,7 +211,12 @@ var parsedSchema = gqlparser.MustLoadSchema(
 	&ast.Source{Name: "schema.graphql", Input: `type Site {
   url: String!
   access_date: String!
-  charges: [Charge!]
+  plans: [Plans!]!
+}
+
+type Plans {
+  name: String!
+  charges: [Charge!]!
 }
 
 type Charge {
@@ -423,6 +447,80 @@ func (ec *executionContext) _Charge_eur_value(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Plans_name(ctx context.Context, field graphql.CollectedField, obj *structs.Plans) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Plans",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Plans_charges(ctx context.Context, field graphql.CollectedField, obj *structs.Plans) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Plans",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Charges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*structs.Charge)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNCharge2ᚕᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_sites(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -616,7 +714,7 @@ func (ec *executionContext) _Site_access_date(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Site_charges(ctx context.Context, field graphql.CollectedField, obj *structs.Site) (ret graphql.Marshaler) {
+func (ec *executionContext) _Site_plans(ctx context.Context, field graphql.CollectedField, obj *structs.Site) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -635,19 +733,22 @@ func (ec *executionContext) _Site_charges(ctx context.Context, field graphql.Col
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Charges, nil
+		return obj.Plans, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.([]*structs.Charge)
+	res := resTmp.([]*structs.Plans)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOCharge2ᚕᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx, field.Selections, res)
+	return ec.marshalNPlans2ᚕᚖdesafioᚑgraphᚋsrcᚋstructsᚐPlans(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -1851,6 +1952,38 @@ func (ec *executionContext) _Charge(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
+var plansImplementors = []string{"Plans"}
+
+func (ec *executionContext) _Plans(ctx context.Context, sel ast.SelectionSet, obj *structs.Plans) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, plansImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Plans")
+		case "name":
+			out.Values[i] = ec._Plans_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "charges":
+			out.Values[i] = ec._Plans_charges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -1916,8 +2049,11 @@ func (ec *executionContext) _Site(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "charges":
-			out.Values[i] = ec._Site_charges(ctx, field, obj)
+		case "plans":
+			out.Values[i] = ec._Site_plans(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2192,6 +2328,43 @@ func (ec *executionContext) marshalNCharge2desafioᚑgraphᚋsrcᚋstructsᚐCha
 	return ec._Charge(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNCharge2ᚕᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx context.Context, sel ast.SelectionSet, v []*structs.Charge) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNCharge2ᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
 func (ec *executionContext) marshalNCharge2ᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx context.Context, sel ast.SelectionSet, v *structs.Charge) graphql.Marshaler {
 	if v == nil {
 		if !ec.HasError(graphql.GetResolverContext(ctx)) {
@@ -2200,6 +2373,57 @@ func (ec *executionContext) marshalNCharge2ᚖdesafioᚑgraphᚋsrcᚋstructsᚐ
 		return graphql.Null
 	}
 	return ec._Charge(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPlans2desafioᚑgraphᚋsrcᚋstructsᚐPlans(ctx context.Context, sel ast.SelectionSet, v structs.Plans) graphql.Marshaler {
+	return ec._Plans(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPlans2ᚕᚖdesafioᚑgraphᚋsrcᚋstructsᚐPlans(ctx context.Context, sel ast.SelectionSet, v []*structs.Plans) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPlans2ᚖdesafioᚑgraphᚋsrcᚋstructsᚐPlans(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNPlans2ᚖdesafioᚑgraphᚋsrcᚋstructsᚐPlans(ctx context.Context, sel ast.SelectionSet, v *structs.Plans) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Plans(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNSite2desafioᚑgraphᚋsrcᚋstructsᚐSite(ctx context.Context, sel ast.SelectionSet, v structs.Site) graphql.Marshaler {
@@ -2514,46 +2738,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
-}
-
-func (ec *executionContext) marshalOCharge2ᚕᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx context.Context, sel ast.SelectionSet, v []*structs.Charge) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		rctx := &graphql.ResolverContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithResolverContext(ctx, rctx)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNCharge2ᚖdesafioᚑgraphᚋsrcᚋstructsᚐCharge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

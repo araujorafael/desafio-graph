@@ -23,21 +23,33 @@ func (qr *QueryResolver) Sites(ctx context.Context, site *string) ([]*structs.Si
 
 	pricing := qr.crawler.GetPricing(*site)
 
-	charges := make([]*structs.Charge, len(pricing))
+	basicPlanCharges := make([]*structs.Charge, len(pricing))
+	professionalPlanCharges := make([]*structs.Charge, len(pricing))
 	for i := range pricing {
-		charge := &structs.Charge{
+		basic := &structs.Charge{
 			Name:     pricing[i].Title,
-			BrlValue: fmt.Sprintf("%s: %s", currencySigns["BRL"], pricing[i].NormalValue),
+			BrlValue: qr.convertValue(pricing[i].NormalValue, "BRL"),
 			UsdValue: qr.convertValue(pricing[i].NormalValue, "USD"),
 			EurValue: qr.convertValue(pricing[i].NormalValue, "EUR"),
 		}
 
-		charges[i] = charge
+		professional := &structs.Charge{
+			Name:     pricing[i].Title,
+			BrlValue: qr.convertValue(pricing[i].PremiumValue, "BRL"),
+			UsdValue: qr.convertValue(pricing[i].PremiumValue, "USD"),
+			EurValue: qr.convertValue(pricing[i].PremiumValue, "EUR"),
+		}
+
+		basicPlanCharges[i] = basic
+		professionalPlanCharges[i] = professional
 	}
 
 	siteData := &structs.Site{
-		URL:     *site,
-		Charges: charges,
+		URL: *site,
+		Plans: []*structs.Plans{
+			{Name: "Básico", Charges: basicPlanCharges},
+			{Name: "Profissinal", Charges: professionalPlanCharges},
+		},
 	}
 
 	found := []*structs.Site{siteData}
@@ -49,7 +61,10 @@ func (qr *QueryResolver) convertValue(value string, currency string) string {
 		return "Não disponvel para este plano"
 	}
 
-	i, _ := strconv.ParseFloat(value, 64)
+	i, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return "Consulte-nos"
+	}
 
 	priceTag := qr.monetary.Convert(i, currency)
 	return fmt.Sprintf("%s: %.2f", currencySigns[currency], priceTag)
