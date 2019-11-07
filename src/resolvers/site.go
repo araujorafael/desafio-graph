@@ -8,22 +8,34 @@ import (
 	"github.com/vektah/gqlparser/gqlerror"
 )
 
+// SiteResolver implementation
+type SiteResolver struct {
+	crawler libs.Crawler
+}
+
+// NewSiteResolver create SiteResolver implementation
+func NewSiteResolver(crawler libs.Crawler) *SiteResolver {
+	return &SiteResolver{
+		crawler: crawler,
+	}
+}
+
 // GetSite return site info
-func GetSite(ctx context.Context, site *string) ([]*structs.Site, error) {
+func (sr *SiteResolver) GetSite(ctx context.Context, site *string) ([]*structs.Site, error) {
 	if *site != "https://www.smartmei.com.br" {
 		return []*structs.Site{}, gqlerror.Errorf("404 - NOT FOUND")
 	}
 
-	pricing := libs.GetPricing(*site)
+	pricing := sr.crawler.GetPricing(*site)
 
 	charges := make([]*structs.Charge, len(pricing))
 	for i := range pricing {
-		cg := &structs.Charge{
+		charge := &structs.Charge{
 			Name:     pricing[i].Title,
 			BrlValue: pricing[i].NormalValue,
 		}
 
-		charges[i] = cg
+		charges[i] = charge
 	}
 
 	siteData := &structs.Site{

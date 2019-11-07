@@ -1,7 +1,8 @@
 package main
 
 import (
-	desafio_graph "desafio-graph/graph"
+	dg "desafio-graph/graph"
+	"desafio-graph/src/libs"
 	"log"
 	"net/http"
 	"os"
@@ -18,7 +19,10 @@ func main() {
 	}
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
-	http.Handle("/query", handler.GraphQL(desafio_graph.NewExecutableSchema(desafio_graph.Config{Resolvers: &desafio_graph.Resolver{}})))
+
+	resolvers := dg.NewResolver(libs.CrawlerImpl{})
+	executableShema := dg.NewExecutableSchema(dg.Config{Resolvers: resolvers})
+	http.Handle("/query", handler.GraphQL(executableShema))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

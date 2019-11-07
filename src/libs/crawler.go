@@ -1,7 +1,6 @@
 package libs
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,6 +10,14 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Crawler interface
+type Crawler interface {
+	GetPricing(url string) []Charge
+}
+
+// CrawlerImpl implementation
+type CrawlerImpl struct{}
+
 // Charge representation
 type Charge struct {
 	Title        string
@@ -19,14 +26,13 @@ type Charge struct {
 }
 
 // GetPricing returns product pricing
-func GetPricing(url string) []Charge {
+func (c CrawlerImpl) GetPricing(url string) []Charge {
 	var charges []Charge
 
-	data := readBody(url)
+	data := c.readBody(url)
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(data))
 	if err != nil {
-		fmt.Println("No url found")
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	doc.Find("#tarifas-2").Each(func(index int, tablehtml *goquery.Selection) {
@@ -38,9 +44,9 @@ func GetPricing(url string) []Charge {
 					case 0:
 						chargeData.Title = strings.TrimSpace(data.Text())
 					case 1:
-						chargeData.NormalValue = getValues(data.Text())
+						chargeData.NormalValue = c.getValues(data.Text())
 					case 2:
-						chargeData.PremiumValue = getValues(data.Text())
+						chargeData.PremiumValue = c.getValues(data.Text())
 					}
 				})
 
@@ -52,7 +58,7 @@ func GetPricing(url string) []Charge {
 	return charges
 }
 
-func getValues(html string) string {
+func (c CrawlerImpl) getValues(html string) string {
 	var rgx = regexp.MustCompile(`(\d+((\.|,|)(\d*|)))`)
 	rs := rgx.FindStringSubmatch(html)
 	if len(rs) < 1 {
@@ -62,7 +68,7 @@ func getValues(html string) string {
 	return strings.Replace(rs[1], ",", ".", -1)
 }
 
-func readBody(url string) string {
+func (c CrawlerImpl) readBody(url string) string {
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("ERROR: ", err)
