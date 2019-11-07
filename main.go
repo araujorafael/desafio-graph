@@ -20,8 +20,7 @@ func main() {
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
 
-	resolvers := dg.NewResolver(libs.CrawlerImpl{})
-	executableShema := dg.NewExecutableSchema(dg.Config{Resolvers: resolvers})
+	executableShema := dg.NewExecutableSchema(dg.NewResolver(libs.CrawlerImpl{}, libs.MonetaryImpl{}))
 	http.Handle("/query", handler.GraphQL(executableShema))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)

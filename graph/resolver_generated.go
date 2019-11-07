@@ -1,34 +1,21 @@
 package graph
 
 import (
-	"context"
 	"desafio-graph/src/libs"
 	"desafio-graph/src/resolvers"
-	"desafio-graph/src/structs"
 )
 
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
-// Resolver is a implementation layer
 type Resolver struct {
-	sitesResolver *resolvers.SiteResolver
+	crawler  libs.Crawler
+	monetary libs.Monetary
 }
 
-// NewResolver Create implementation and injects dependencies
-func NewResolver(crawler libs.Crawler) *Resolver {
-	return &Resolver{
-		sitesResolver: resolvers.NewSiteResolver(crawler),
-	}
+func NewResolver(crawler libs.Crawler, monetary libs.MonetaryImpl) Config {
+	return Config{Resolvers: &Resolver{crawler, monetary}}
 }
 
-// Query default query resolver implementation
 func (r *Resolver) Query() QueryResolver {
-	return &queryResolver{r}
-}
-
-type queryResolver struct{ *Resolver }
-
-// Sites is a resolver implementation to Site schema
-func (r *queryResolver) Sites(ctx context.Context, site *string) ([]*structs.Site, error) {
-	return r.sitesResolver.GetSite(ctx, site)
+	return resolvers.NewQueryResolver(r.crawler, r.monetary)
 }
